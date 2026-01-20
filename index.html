@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>ZN PC Spec Calculator</title>
+<style>
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#dbeeff,#eef6ff);min-height:100vh;display:flex;justify-content:center;align-items:center}
+.app{width:900px;background:#fff;border-radius:15px;box-shadow:0 20px 40px rgba(0,0,0,.15)}
+.header{background:#4da3ff;color:#fff;padding:15px 25px;display:flex;align-items:center}
+.logo{width:45px;height:45px;background:#fff;color:#4da3ff;font-weight:bold;border-radius:50%;display:flex;justify-content:center;align-items:center;margin-right:15px}
+.content{padding:25px}
+label{font-weight:bold;margin-top:15px;display:block}
+input,select{width:100%;padding:10px;margin-top:5px;font-size:16px;border-radius:8px;border:1px solid #ccc}
+button{width:100%;margin-top:20px;padding:12px;font-size:18px;background:#4da3ff;color:#fff;border:none;border-radius:10px;cursor:pointer}
+button:hover{background:#1e88e5}
+.result{margin-top:25px;background:#f2f8ff;padding:20px;border-radius:10px;display:none}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #ccc}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">ZN</div>
+    <h2>ZN ระบบจัดสเปกคอมพิวเตอร์</h2>
+  </div>
+
+  <div class="content">
+    <label>งบประมาณ (บาท)</label>
+    <input type="number" id="budget" placeholder="15000 - 100000">
+
+    <label>ลักษณะการใช้งาน</label>
+    <select id="usage">
+      <option value="">-- เลือก --</option>
+      <option value="study">ใช้งานทั่วไป / เรียน</option>
+      <option value="game">เล่นเกม</option>
+    </select>
+
+    <button onclick="calculate()">คำนวณสเปก</button>
+    <div id="result" class="result"></div>
+  </div>
+</div>
+
+<script>
+const specs = {
+  study: [
+    {price:15000, items:[
+      ["CPU","Ryzen 3 / i3",4500],
+      ["Mainboard","A520 / H610",2200],
+      ["RAM","8GB DDR4",1200],
+      ["SSD","256GB",1000],
+      ["Case","Mini Tower",1200],
+      ["PSU","450W",1100]
+    ]},
+    {price:25000, items:[
+      ["CPU","Ryzen 5 / i5",6500],
+      ["Mainboard","B450 / B660",2800],
+      ["RAM","16GB DDR4",1800],
+      ["SSD","512GB NVMe",1600],
+      ["Case","ATX Case",1500],
+      ["PSU","500W",1200]
+    ]},
+    {price:40000, items:[
+      ["CPU","Ryzen 5",7500],
+      ["Mainboard","B550",3500],
+      ["RAM","16GB",1800],
+      ["SSD","1TB NVMe",2600],
+      ["Case","Airflow Case",1800],
+      ["PSU","600W",1800]
+    ]},
+    {price:60000, items:[
+      ["CPU","Ryzen 7",12500],
+      ["Mainboard","X570",5500],
+      ["RAM","32GB",4200],
+      ["SSD","1TB NVMe",2600],
+      ["Case","Mid Tower",2000],
+      ["PSU","650W",2200]
+    ]},
+    {price:80000, items:[
+      ["CPU","Ryzen 9",19500],
+      ["Mainboard","X670",8500],
+      ["RAM","32GB DDR5",5200],
+      ["SSD","2TB NVMe",7200],
+      ["Case","Premium Case",2500],
+      ["PSU","750W Gold",2800]
+    ]}
+  ],
+
+  game: [
+    {price:15000, items:[
+      ["CPU","Ryzen 3",4500],
+      ["Mainboard","A520",2200],
+      ["RAM","16GB",1800],
+      ["SSD","512GB",1600],
+      ["GPU","GTX 1650",6000],
+      ["PSU","500W",1200]
+    ]},
+    {price:30000, items:[
+      ["CPU","Ryzen 5",7500],
+      ["Mainboard","B450",2800],
+      ["RAM","16GB",1800],
+      ["SSD","1TB",2600],
+      ["GPU","RTX 3050",9500],
+      ["PSU","600W",1800]
+    ]},
+    {price:50000, items:[
+      ["CPU","i5 / Ryzen 5",8500],
+      ["Mainboard","B760 / B550",3500],
+      ["RAM","16GB",2600],
+      ["SSD","1TB",2600],
+      ["GPU","RTX 4060",11500],
+      ["PSU","650W",2200]
+    ]},
+    {price:70000, items:[
+      ["CPU","i7 / Ryzen 7",14500],
+      ["Mainboard","Z690 / X570",5500],
+      ["RAM","32GB",5200],
+      ["SSD","2TB",7200],
+      ["GPU","RTX 4070",19500],
+      ["PSU","750W",2800]
+    ]},
+    {price:100000, items:[
+      ["CPU","i9 / Ryzen 9",26000],
+      ["Mainboard","Z790 / X670",8500],
+      ["RAM","32GB",5200],
+      ["SSD","2TB",7200],
+      ["GPU","RTX 4080",42000],
+      ["PSU","850W Gold",3500]
+    ]}
+  ],
+
+ 
+};
+
+function calculate(){
+  const budget = Number(document.getElementById("budget").value);
+  const usage = document.getElementById("usage").value;
+  const result = document.getElementById("result");
+
+  if(!budget || !usage){
+    alert("กรุณากรอกข้อมูลให้ครบ");
+    return;
+  }
+
+  const available = specs[usage].filter(s => s.price <= budget);
+  if(available.length === 0){
+    alert("งบไม่เพียงพอสำหรับการใช้งานนี้");
+    return;
+  }
+
+  const spec = available[available.length - 1];
+
+  let total = 0;
+  let html = `<h3>สเปกที่เหมาะกับงบ ${budget.toLocaleString()} บาท</h3>
+  <table><tr><th>อุปกรณ์</th><th>รุ่น</th><th>ราคา</th></tr>`;
+
+  spec.items.forEach(i=>{
+    total += i[2];
+    html += `<tr><td>${i[0]}</td><td>${i[1]}</td><td>${i[2].toLocaleString()}</td></tr>`;
+  });
+
+  html += `</table><p><b>ราคารวม:</b> ${total.toLocaleString()} บาท</p>`;
+  result.innerHTML = html;
+  result.style.display = "block";
+}
+</script>
+</body>
+</html>
